@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase";
 
 type Provider = "google" | "github";
 
-export default function LoginPage() {
+function LoginContent() {
   const searchParams = useSearchParams();
   const redirectTo   = searchParams.get("redirectTo") ?? "/";
   const authError    = searchParams.get("error");
@@ -133,3 +133,5 @@ function Spinner({ light = false }: { light?: boolean }) {
     </svg>
   );
 }
+
+
