@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 
@@ -10,32 +10,23 @@ function LoginContent() {
   const searchParams = useSearchParams();
   const redirectTo   = searchParams.get("redirectTo") ?? "/";
   const authError    = searchParams.get("error");
-
   const [loading, setLoading] = useState<Provider | null>(null);
 
   async function signInWith(provider: Provider) {
     setLoading(provider);
     const supabase = createClient();
-
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
         redirectTo: `${window.location.origin}/auth/callback?redirectTo=${redirectTo}`,
       },
     });
-
-    if (error) {
-      console.error("OAuth error:", error.message);
-      setLoading(null);
-    }
-    // On success, Supabase redirects the browser — no further action needed
+    if (error) { console.error("OAuth error:", error.message); setLoading(null); }
   }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-4">
-      {/* Card */}
       <div className="w-full max-w-sm bg-gray-900 border border-gray-800 rounded-2xl p-8">
-        {/* Icon + title */}
         <div className="flex flex-col items-center mb-8">
           <span className="text-4xl mb-4">🌾</span>
           <h1 className="text-xl font-semibold text-white">Sign in</h1>
@@ -43,65 +34,43 @@ function LoginContent() {
             Save your detection history and access it anywhere
           </p>
         </div>
-
-        {/* Error banner */}
         {authError && (
-          <div className="mb-5 px-4 py-3 rounded-xl bg-red-900/40 border border-red-700/40
-                          text-red-300 text-sm text-center">
+          <div className="mb-5 px-4 py-3 rounded-xl bg-red-900/40 border border-red-700/40 text-red-300 text-sm text-center">
             Sign-in failed. Please try again.
           </div>
         )}
-
-        {/* OAuth buttons */}
         <div className="flex flex-col gap-3">
-          {/* Google */}
           <button
             onClick={() => signInWith("google")}
             disabled={!!loading}
-            className="tap-target flex items-center justify-center gap-3 w-full
-                       px-4 py-3 rounded-xl border border-gray-700
-                       bg-white text-gray-900 font-medium text-sm
-                       hover:bg-gray-100 active:scale-95
-                       disabled:opacity-50 disabled:cursor-not-allowed
-                       transition-all duration-150"
+            className="tap-target flex items-center justify-center gap-3 w-full px-4 py-3 rounded-xl border border-gray-700 bg-white text-gray-900 font-medium text-sm hover:bg-gray-100 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
           >
-            {loading === "google" ? (
-              <Spinner />
-            ) : (
-              <GoogleIcon />
-            )}
+            {loading === "google" ? <Spinner /> : <GoogleIcon />}
             Continue with Google
           </button>
-
-          {/* GitHub */}
           <button
             onClick={() => signInWith("github")}
             disabled={!!loading}
-            className="tap-target flex items-center justify-center gap-3 w-full
-                       px-4 py-3 rounded-xl border border-gray-700
-                       bg-gray-800 text-white font-medium text-sm
-                       hover:bg-gray-700 active:scale-95
-                       disabled:opacity-50 disabled:cursor-not-allowed
-                       transition-all duration-150"
+            className="tap-target flex items-center justify-center gap-3 w-full px-4 py-3 rounded-xl border border-gray-700 bg-gray-800 text-white font-medium text-sm hover:bg-gray-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
           >
-            {loading === "github" ? (
-              <Spinner light />
-            ) : (
-              <GitHubIcon />
-            )}
+            {loading === "github" ? <Spinner light /> : <GitHubIcon />}
             Continue with GitHub
           </button>
         </div>
-
-        <p className="mt-6 text-center text-xs text-gray-600">
-          No password needed. Your data stays private.
-        </p>
+        <p className="mt-6 text-center text-xs text-gray-600">No password needed. Your data stays private.</p>
       </div>
     </div>
   );
 }
 
-// ── Inline SVG icons ─────────────────────────────────────────
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginContent />
+    </Suspense>
+  );
+}
+
 function GoogleIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -123,15 +92,9 @@ function GitHubIcon() {
 
 function Spinner({ light = false }: { light?: boolean }) {
   return (
-    <svg
-      className={`animate-spin w-4 h-4 ${light ? "text-white" : "text-gray-600"}`}
-      viewBox="0 0 24 24" fill="none"
-    >
+    <svg className={`animate-spin w-4 h-4 ${light ? "text-white" : "text-gray-600"}`} viewBox="0 0 24 24" fill="none">
       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-      <path className="opacity-75" fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
     </svg>
   );
 }
-
-
