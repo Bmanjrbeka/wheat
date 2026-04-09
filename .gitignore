@@ -27,3 +27,5 @@ next-env.d.ts
 .DS_Store
 *.pem
 npm-debug.log*
+clean/ 
+node_modules/ 
