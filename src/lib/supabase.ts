@@ -1,12 +1,12 @@
-import { createBrowserClient } from "@supabase/ssr";
+import { createBrowserClient } from '@supabase/ssr'
 
-const supabaseUrl  = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+// Hardcoded keys to fix the browser-side crash
+const supabaseUrl = 'https://rc47un0dbuyps6axbzuj.supabase.co'
+const supabaseAnon = 'sb_publishable_rc47UN0dBuYPS6aXBzUJmg_0_wvMMFC'
 
 /**
- * Browser-side Supabase client.
- * Use this in Client Components and API route helpers.
+ * Creates a Supabase client for use in Client Components.
  */
 export function createClient() {
-  return createBrowserClient(supabaseUrl, supabaseAnon);
+  return createBrowserClient(supabaseUrl, supabaseAnon)
 }

@@ -1,21 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { Navbar } from "@/components/Navbar";
+import { AppLayout } from "@/components/layout/AppLayout";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Wheat Disease Detector",
+  title: "Wheat-Guard - Research & Diagnostic Tool",
   description:
-    "AI-powered wheat disease detection for Ethiopian farmers. " +
-    "Upload a leaf photo and get an instant diagnosis.",
-  keywords: ["wheat", "disease", "detection", "Ethiopia", "farming", "AI"],
+    "Professional wheat disease research and diagnostic tool for agricultural research. " +
+    "Analyze, understand, and record wheat disease patterns with AI-powered insights.",
+  keywords: ["wheat", "disease", "research", "diagnostic", "agriculture", "AI", "wheat-guard"],
 };
 
 export const viewport: Viewport = {
-  // Critical for field use on mobile
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  themeColor: "#0a0a0a",
+  themeColor: "#4CAF50",
 };
 
 export default function RootLayout({
@@ -24,10 +23,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen bg-gray-950">
-        <Navbar />
-        <main className="pt-14">{children}</main>
+    <html lang="en" suppressHydrationWarning={true}>
+      <body 
+        className="min-h-screen bg-background-50 antialiased"
+        suppressHydrationWarning={true}
+      >
+        <AppLayout>{children}</AppLayout>
       </body>
     </html>
   );

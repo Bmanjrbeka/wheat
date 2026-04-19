@@ -12,14 +12,14 @@ interface Props {
   history?:   DetectionRecord[];
 }
 
-// Disease → marker color
+// Disease → marker color (Wheat-Guard color scheme)
 const DISEASE_COLOR: Record<string, string> = {
-  "Healthy":     "#22c55e",
-  "Leaf Rust":   "#f59e0b",
-  "Stripe Rust": "#eab308",
-  "Stem Rust":   "#ef4444",
-  "Septoria":    "#f97316",
-  "Fusarium":    "#a855f7",
+  "Healthy":     "#4CAF50",
+  "Leaf Rust":   "#FFBF00",
+  "Stripe Rust": "#FF9800",
+  "Stem Rust":   "#F44336",
+  "Septoria":    "#9C27B0",
+  "Fusarium":    "#E91E63",
 };
 
 export function LeafletMap({ center, zoom = 13, current, history = [] }: Props) {
@@ -47,14 +47,17 @@ export function LeafletMap({ center, zoom = 13, current, history = [] }: Props) 
         attributionControl: false,
       });
 
-      // Dark tile layer (fits the app's dark theme)
+      // Light tile layer (fits Wheat-Guard design)
       L.tileLayer(
-        "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-        { maxZoom: 19 }
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        { 
+          maxZoom: 19,
+          attribution: '© OpenStreetMap contributors'
+        }
       ).addTo(map);
 
       // Attribution (minimal)
-      L.control.attribution({ prefix: "© CartoDB" }).addTo(map);
+      L.control.attribution({ prefix: "" }).addTo(map);
 
       // ── Current detection pin ──────────────────────────────
       if (current) {

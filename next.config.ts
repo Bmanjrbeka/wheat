@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Removed the experimental turbopack root to stop the warning
 };
 
 export default nextConfig;
