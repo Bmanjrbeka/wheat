@@ -107,18 +107,21 @@ export function Sidebar({ isCollapsed = false }: SidebarProps) {
                   <Link
                     href={item.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`
-                      flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 cursor-pointer
-                      ${isActive(item.href)
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 cursor-pointer ${
+                      isActive(item.href)
                         ? 'bg-primary-100 text-primary-800 border-l-4 border-primary-600 shadow-sm transform scale-105'
                         : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:shadow-md hover:translate-x-1'
-                      }
-                      ${isCollapsed ? 'opacity-0 pointer-events-none scale-95 translate-x-2' : 'opacity-100 scale-100 translate-x-0 animate-slide-in'}
-                    `}
+                    } ${
+                      isCollapsed ? 'opacity-0 pointer-events-none scale-95 translate-x-2' : 'opacity-100 scale-100 translate-x-0 animate-slide-in'
+                    }`}
                   >
-                    <div className={`flex items-center transition-all duration-300 ${isCollapsed ? 'scale-95' : 'scale-100'}`}>
+                    <div className={`flex items-center transition-all duration-300 ${
+                      isCollapsed ? 'scale-95' : 'scale-100'
+                    }`}>
                       {item.icon}
-                      <span className={`font-medium select-none transition-all duration-300 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>{item.label}</span>
+                      <span className={`font-medium select-none transition-all duration-300 ${
+                        isCollapsed ? 'opacity-0' : 'opacity-100'
+                      }`}>{item.label}</span>
                     </div>
                   </Link>
                 </li>
