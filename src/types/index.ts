@@ -12,6 +12,9 @@ export interface Prediction {
   confidence: number;         // 0–1 float
   treatment: string;
   all_probabilities: Record<DiseaseClass, number>;
+  image_url?: string;         // Optional image URL for storage
+  prevention?: string;        // Prevention recommendations
+  top3?: Array<{disease: DiseaseClass, confidence: number}>; // Top 3 predictions
 }
 
 // ── Detection history (Supabase row) ─────────────────────────
