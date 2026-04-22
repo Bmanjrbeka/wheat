@@ -2,15 +2,18 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 // Routes that require a logged-in session
-const PROTECTED_ROUTES = ["/history", "/profile"];
+const PROTECTED_ROUTES = ["/history", "/profile", "/analysis", "/reports", "/premium"];
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
-  // HARDCODED CREDENTIALS TO BYPASS ENVIRONMENT VARIABLE ISSUES
+  // Hardcoded credentials to fix authentication issues
+  const supabaseUrl = 'https://rc47un0dbuyps6axbzuj.supabase.co'
+  const supabaseAnon = 'sb_publishable_rc47UN0dBuYPS6aXBzUJmg_0_wvMMFC'
+  
   const supabase = createServerClient(
-    'https://rc47un0dbuyps6axbzuj.supabase.co',
-    'sb_publishable_rc47UN0dBuYPS6aXBzUJmg_0_wvMMFC',
+    supabaseUrl,
+    supabaseAnon,
     {
       cookies: {
         getAll() {

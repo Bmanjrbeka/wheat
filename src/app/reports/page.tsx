@@ -116,7 +116,7 @@ export default function ReportsPage() {
       </div>
 
       {/* Report Type Tabs */}
-      <div className="border-b border-gray-200">
+      <div className="border-b-2 border-gray-300">
         <nav className="flex space-x-8">
           {[
             { id: 'overview', label: 'Overview', icon: <BarChart3 className="w-4 h-4" /> },

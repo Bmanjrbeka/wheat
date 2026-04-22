@@ -3,19 +3,26 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   LayoutDashboard, 
   Microscope, 
   History, 
   FileText, 
   Menu, 
-  X 
+  X,
+  Sparkles,
+  LogIn
 } from "lucide-react";
 
 interface SidebarItem {
   label: string;
   href: string;
   icon: React.ReactNode;
+}
+
+interface SidebarProps {
+  isCollapsed?: boolean;
 }
 
 const sidebarItems: SidebarItem[] = [
@@ -30,6 +37,11 @@ const sidebarItems: SidebarItem[] = [
     icon: <Microscope className="w-5 h-5" />
   },
   {
+    label: "Premium",
+    href: "/premium",
+    icon: <Sparkles className="w-5 h-5" />
+  },
+  {
     label: "History",
     href: "/history",
     icon: <History className="w-5 h-5" />
@@ -41,7 +53,8 @@ const sidebarItems: SidebarItem[] = [
   }
 ];
 
-export function Sidebar() {
+export function Sidebar({ isCollapsed = false }: SidebarProps) {
+  const { user, loading } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
@@ -71,24 +84,23 @@ export function Sidebar() {
 
       {/* Sidebar */}
       <aside className={`
-        fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-gray-200
-        transform transition-transform duration-300 ease-in-out
-        lg:translate-x-0 lg:static lg:z-0
+        fixed top-0 left-0 z-50 h-screen ${isCollapsed ? 'w-0' : 'w-64'} bg-white border-r-2 border-gray-300
+        will-change-transform ${isCollapsed ? 'translateX(-100%)' : 'translateX(0%)'}
+        transition-transform duration-500 ease-out
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="p-6 border-b border-gray-200">
+          <div className="py-5 px-6 border-b-2 border-gray-300 flex items-center">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
-                <span className="text-white text-xl font-bold">🌾</span>
               </div>
               <h1 className="text-xl font-bold text-gray-900">Wheat-Guard</h1>
             </div>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4">
+          <nav className={`flex-1 p-4 transition-all duration-500 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>
             <ul className="space-y-2">
               {sidebarItems.map((item) => (
                 <li key={item.href}>
@@ -96,15 +108,18 @@ export function Sidebar() {
                     href={item.href}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={`
-                      flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200
+                      flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 cursor-pointer
                       ${isActive(item.href)
-                        ? 'bg-primary-50 text-primary-700 border-l-4 border-primary-500'
-                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                        ? 'bg-primary-100 text-primary-800 border-l-4 border-primary-600 shadow-sm transform scale-105'
+                        : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:shadow-md hover:translate-x-1'
                       }
+                      ${isCollapsed ? 'opacity-0 pointer-events-none scale-95 translate-x-2' : 'opacity-100 scale-100 translate-x-0 animate-slide-in'}
                     `}
                   >
-                    {item.icon}
-                    <span className="font-medium">{item.label}</span>
+                    <div className={`flex items-center transition-all duration-300 ${isCollapsed ? 'scale-95' : 'scale-100'}`}>
+                      {item.icon}
+                      <span className={`font-medium select-none transition-all duration-300 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>{item.label}</span>
+                    </div>
                   </Link>
                 </li>
               ))}
@@ -112,9 +127,9 @@ export function Sidebar() {
           </nav>
 
           {/* Footer */}
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t-2 border-gray-300">
             <div className="text-xs text-gray-500 text-center">
-              Wheat Disease Research Tool
+              Agricultural Research Workflow
             </div>
           </div>
         </div>

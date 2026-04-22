@@ -25,7 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning={true}>
       <body 
-        className="min-h-screen bg-background-50 antialiased"
+        className="min-h-screen antialiased"
         suppressHydrationWarning={true}
       >
         <AppLayout>{children}</AppLayout>

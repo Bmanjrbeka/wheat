@@ -11,16 +11,17 @@ import {
   Loader2,
   ArrowRight
 } from "lucide-react";
+import Link from "next/link";
 
 type Provider = "google" | "github";
 
-function LoginContent() {
+function SignupContent() {
   const searchParams = useSearchParams();
   const redirectTo   = searchParams.get("redirectTo") ?? "/dashboard";
   const authError    = searchParams.get("error");
   const [loading, setLoading] = useState<Provider | null>(null);
 
-  async function signInWith(provider: Provider) {
+  async function signUpWith(provider: Provider) {
     setLoading(provider);
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
@@ -33,7 +34,7 @@ function LoginContent() {
       console.error("OAuth error:", error.message); 
       setLoading(null); 
       // Redirect with error
-      window.location.href = `/login?error=auth_failed&redirectTo=${redirectTo}`;
+      window.location.href = `/signup?error=auth_failed&redirectTo=${redirectTo}`;
     }
   }
 
@@ -57,13 +58,13 @@ function LoginContent() {
           </motion.div>
           
           <h1 className="text-3xl font-bold text-gray-900 mb-3">
-            Welcome to Wheat-Guard
+            Join Wheat-Guard
           </h1>
           <p className="text-lg text-gray-600 mb-2">
-            Sign in to access your research dashboard
+            Start your wheat disease research journey
           </p>
           <p className="text-sm text-gray-500">
-            Save your detection history and access it anywhere
+            Create your account to access advanced analysis tools
           </p>
         </div>
 
@@ -76,7 +77,7 @@ function LoginContent() {
           >
             <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-semibold text-red-900">Sign-in failed</h3>
+              <h3 className="font-semibold text-red-900">Sign-up failed</h3>
               <p className="text-red-700 text-sm mt-1">
                 Please try again or use a different authentication method.
               </p>
@@ -84,10 +85,10 @@ function LoginContent() {
           </motion.div>
         )}
 
-        {/* Sign-in Options */}
+        {/* Sign-up Options */}
         <div className="space-y-4">
           <motion.button
-            onClick={() => signInWith("google")}
+            onClick={() => signUpWith("google")}
             disabled={!!loading}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -102,7 +103,7 @@ function LoginContent() {
           </motion.button>
 
           <motion.button
-            onClick={() => signInWith("github")}
+            onClick={() => signUpWith("github")}
             disabled={!!loading}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -117,40 +118,60 @@ function LoginContent() {
           </motion.button>
         </div>
 
-        {/* Features */}
-        <div className="mt-8 grid grid-cols-3 gap-4 text-center">
-          <div className="p-3">
-            <CheckCircle className="w-6 h-6 text-green-600 mx-auto mb-2" />
-            <p className="text-xs text-gray-600 font-medium">Secure</p>
-          </div>
-          <div className="p-3">
-            <CheckCircle className="w-6 h-6 text-green-600 mx-auto mb-2" />
-            <p className="text-xs text-gray-600 font-medium">Private</p>
-          </div>
-          <div className="p-3">
-            <CheckCircle className="w-6 h-6 text-green-600 mx-auto mb-2" />
-            <p className="text-xs text-gray-600 font-medium">No Password</p>
+        {/* Benefits */}
+        <div className="mt-8 space-y-4">
+          <h3 className="text-lg font-semibold text-gray-900 text-center">
+            Why join Wheat-Guard?
+          </h3>
+          <div className="grid grid-cols-1 gap-3">
+            <div className="flex items-start gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
+              <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium text-green-900 text-sm">Save Your History</p>
+                <p className="text-green-700 text-xs mt-1">
+                  Keep track of all your wheat disease analyses
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium text-blue-900 text-sm">Advanced Analytics</p>
+                <p className="text-blue-700 text-xs mt-1">
+                  Get detailed reports and insights from your data
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
+              <CheckCircle className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium text-purple-900 text-sm">Research Tools</p>
+                <p className="text-purple-700 text-xs mt-1">
+                  Access professional-grade analysis features
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Sign up link */}
+        {/* Sign in link */}
         <div className="mt-8 text-center">
           <p className="text-sm text-gray-600">
-            Don't have an account?{" "}
-            <a 
-              href={`/signup?redirectTo=${redirectTo}`}
+            Already have an account?{" "}
+            <Link 
+              href={`/login?redirectTo=${redirectTo}`}
               className="text-primary-600 hover:text-primary-700 font-medium inline-flex items-center gap-1"
             >
-              Sign up
+              Sign in
               <ArrowRight className="w-4 h-4" />
-            </a>
+            </Link>
           </p>
         </div>
 
         {/* Footer */}
         <div className="mt-8 text-center">
           <p className="text-xs text-gray-500">
-            By signing in, you agree to our terms of service and privacy policy.
+            By creating an account, you agree to our terms of service and privacy policy.
           </p>
           <p className="text-xs text-gray-400 mt-2">
             Your data stays private and secure with Supabase authentication.
@@ -161,10 +182,10 @@ function LoginContent() {
   );
 }
 
-export default function LoginPage() {
+export default function SignupPage() {
   return (
     <Suspense>
-      <LoginContent />
+      <SignupContent />
     </Suspense>
   );
 }
@@ -184,15 +205,6 @@ function GitHubIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 0C5.37 0 0 5.373 0 12c0 5.303 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222 0 1.606-.015 2.896-.015 3.286 0 .315.216.69.825.572C20.565 21.795 24 17.298 24 12c0-6.627-5.373-12-12-12z"/>
-    </svg>
-  );
-}
-
-function Spinner({ light = false }: { light?: boolean }) {
-  return (
-    <svg className={`animate-spin w-4 h-4 ${light ? "text-white" : "text-gray-600"}`} viewBox="0 0 24 24" fill="none">
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
     </svg>
   );
 }

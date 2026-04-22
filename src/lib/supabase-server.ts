@@ -1,6 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
+// Hardcoded keys to fix the server-side crash
+const supabaseUrl = 'https://rc47un0dbuyps6axbzuj.supabase.co'
+const supabaseAnon = 'sb_publishable_rc47UN0dBuYPS6aXBzUJmg_0_wvMMFC'
+
 /**
  * Server-side Supabase client.
  * Use this in Server Components, Server Actions, and Route Handlers.
@@ -9,8 +13,8 @@ export async function createServerSupabaseClient() {
   const cookieStore = await cookies();
 
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnon,
     {
       cookies: {
         getAll() {

@@ -5,18 +5,31 @@
 
 @layer base {
   :root {
-    --background: 245 245 220; /* Soft Beige */
-    --foreground: 77 77 77; /* Charcoal */
+    --background: 245 245 220;
+    --foreground: 77 77 77;
   }
 
   * {
+    margin: 0;
+    padding: 0;
     box-sizing: border-box;
   }
 
-  body {
-    @apply bg-background-50 text-text-900 antialiased;
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(245, 245, 220);
+  }
+
+  html {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  body {
+    min-height: 100vh;
   }
 
   /* Smooth scrolling */
@@ -86,36 +99,70 @@
 }
 
 @layer components {
+  /* Glassmorphism utilities */
+  .glass-card {
+    @apply backdrop-blur-md bg-glass-white30 border border-glass-white20 rounded-2xl;
+  }
+
+  .glass-hover {
+    @apply glass-card hover:bg-glass-white40 hover:border-gray-300 transition-all duration-300;
+  }
+
   /* Button styles */
   .btn-primary {
-    @apply bg-primary-500 text-white px-4 py-2 rounded-lg font-medium
-           hover:bg-primary-600 active:scale-95 transition-all duration-200;
+    @apply bg-primary-600 text-white px-6 py-3 rounded-xl font-semibold
+           hover:bg-primary-700 active:scale-95 transition-all duration-200
+           shadow-lg hover:shadow-xl;
   }
 
   .btn-secondary {
-    @apply bg-white text-gray-700 px-4 py-2 rounded-lg font-medium border border-gray-300
-           hover:bg-gray-50 active:scale-95 transition-all duration-200;
+    @apply bg-white text-gray-700 px-6 py-3 rounded-xl font-semibold border border-gray-300
+           hover:bg-gray-50 active:scale-95 transition-all duration-200
+           shadow-sm hover:shadow-md;
   }
 
   .btn-ghost {
-    @apply text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg font-medium
+    @apply text-gray-600 hover:text-gray-900 px-6 py-3 rounded-xl font-semibold
            hover:bg-gray-100 active:scale-95 transition-all duration-200;
   }
 
   /* Card styles */
   .card {
-    @apply bg-white rounded-xl border border-gray-200 shadow-sm;
+    @apply bg-white rounded-2xl border border-gray-200 shadow-lg;
   }
 
   .card-hover {
-    @apply card hover:shadow-md hover:border-gray-300 transition-all duration-200;
+    @apply card hover:shadow-xl hover:border-gray-300 transition-all duration-300
+           hover:scale-[1.02];
   }
 
   /* Input styles */
   .input {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-lg
+    @apply w-full px-4 py-3 border border-gray-300 rounded-xl
            focus:ring-2 focus:ring-primary-500 focus:border-primary-500
-           placeholder-gray-400 transition-colors;
+           placeholder-gray-400 transition-all duration-200
+           bg-white/80 backdrop-blur-sm;
+  }
+
+  /* Clean Nature theme utilities */
+  .nature-bg {
+    @apply bg-slate-50;
+  }
+
+  .nature-card {
+    @apply bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl;
+  }
+
+  .nature-primary {
+    @apply bg-primary-600 text-white;
+  }
+
+  .nature-text {
+    @apply text-gray-900;
+  }
+
+  .nature-subtle {
+    @apply text-gray-600;
   }
 }
 
