@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { IS_MOCK } from "@/lib/api";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -120,14 +119,14 @@ export function Sidebar({ collapsed }: SidebarProps) {
       {/* Status footer */}
       <div className="px-3 pb-4 border-t pt-3" style={{ borderColor: "var(--border)" }}>
         <div className="px-3 py-2.5 rounded-xl text-xs font-medium flex items-start gap-2"
-             style={{ background: IS_MOCK ? "var(--amber-bg)" : "var(--green-light)",
-                      color: IS_MOCK ? "#633806" : "var(--green-deep)" }}>
+             style={{ background: "var(--green-light)",
+                      color: "var(--green-deep)" }}>
           <span className="pulse-dot mt-0.5 flex-shrink-0"
-                style={{ background: IS_MOCK ? "var(--amber-warn)" : "var(--green-mid)" }}/>
+                style={{ background: "var(--green-mid)" }}/>
           <div>
-            <div className="font-semibold">{IS_MOCK ? "Mock mode" : "API live"}</div>
+            <div className="font-semibold">API live</div>
             <div className="text-[10px] opacity-70 mt-0.5">
-              {IS_MOCK ? "Model pending deployment" : "HuggingFace Space"}
+              HuggingFace Space
             </div>
           </div>
         </div>
