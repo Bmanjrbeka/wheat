@@ -1,204 +1,187 @@
 "use client";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Page } from "@/components/Page";
+import { createClient } from "@/lib/supabase";
+import { DISEASE_META, fmtConf, fmtDate, fmtRelative, DetectionRecord, DiseaseClass } from "@/lib/constants";
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
-import { 
-  TrendingUp, 
-  Activity, 
-  AlertTriangle, 
-  CheckCircle,
-  Eye,
-  Calendar,
-  History,
-  FileText
-} from "lucide-react";
-
-const statsData = [
-  {
-    title: "Total Analyses",
-    value: "1,247",
-    change: "+12.5%",
-    trend: "up",
-    icon: <Activity className="w-6 h-6" />,
-    color: "primary"
-  },
-  {
-    title: "Disease Detected",
-    value: "342",
-    change: "+8.2%",
-    trend: "up", 
-    icon: <AlertTriangle className="w-6 h-6" />,
-    color: "alert"
-  },
-  {
-    title: "Healthy Samples",
-    value: "905",
-    change: "+15.1%",
-    trend: "up",
-    icon: <CheckCircle className="w-6 h-6" />,
-    color: "primary"
-  },
-  {
-    title: "Avg Confidence",
-    value: "87.3%",
-    change: "+2.4%",
-    trend: "up",
-    icon: <TrendingUp className="w-6 h-6" />,
-    color: "primary"
-  }
+const MOCK: DetectionRecord[] = [
+  { id:"1",user_id:"u",image_url:"",disease:"Healthy",    confidence:0.94,treatment:"",prevention:"",top3:[],latitude:9.14, longitude:40.49,created_at:new Date(Date.now()-120000).toISOString()},
+  { id:"2",user_id:"u",image_url:"",disease:"Leaf Rust",  confidence:0.88,treatment:"",prevention:"",top3:[],latitude:null,longitude:null,  created_at:new Date(Date.now()-840000).toISOString()},
+  { id:"3",user_id:"u",image_url:"",disease:"Stripe Rust",confidence:0.62,treatment:"",prevention:"",top3:[],latitude:9.01, longitude:40.22,created_at:new Date(Date.now()-3600000).toISOString()},
+  { id:"4",user_id:"u",image_url:"",disease:"Stem Rust",  confidence:0.91,treatment:"",prevention:"",top3:[],latitude:null,longitude:null,  created_at:new Date(Date.now()-10800000).toISOString()},
+  { id:"5",user_id:"u",image_url:"",disease:"Healthy",    confidence:0.97,treatment:"",prevention:"",top3:[],latitude:8.88, longitude:40.01,created_at:new Date(Date.now()-86400000).toISOString()},
+  { id:"6",user_id:"u",image_url:"",disease:"Fusarium",   confidence:0.79,treatment:"",prevention:"",top3:[],latitude:null,longitude:null,  created_at:new Date(Date.now()-172800000).toISOString()},
 ];
-
-const diseaseData = [
-  { name: "Healthy", value: 905, color: "#4CAF50" },
-  { name: "Leaf Rust", value: 156, color: "#FFBF00" },
-  { name: "Stripe Rust", value: 89, color: "#FF9800" },
-  { name: "Stem Rust", value: 45, color: "#F44336" },
-  { name: "Septoria", value: 34, color: "#9C27B0" },
-  { name: "Fusarium", value: 18, color: "#E91E63" }
-];
-
-const recentActivity = [
-  { id: 1, type: "analysis", sample: "Sample #1247", result: "Leaf Rust", time: "2 min ago", confidence: 92 },
-  { id: 2, type: "analysis", sample: "Sample #1246", result: "Healthy", time: "15 min ago", confidence: 96 },
-  { id: 3, type: "analysis", sample: "Sample #1245", result: "Stripe Rust", time: "1 hour ago", confidence: 78 },
-  { id: 4, type: "analysis", sample: "Sample #1244", result: "Healthy", time: "2 hours ago", confidence: 89 },
-  { id: 5, type: "analysis", sample: "Sample #1243", result: "Septoria", time: "3 hours ago", confidence: 71 }
-];
-
-const getStatColor = (color: string) => {
-  switch (color) {
-    case 'primary': return 'bg-primary-100 text-primary-700 border-primary-200';
-    case 'alert': return 'bg-alert-100 text-alert-700 border-alert-200';
-    default: return 'bg-gray-100 text-gray-700 border-gray-200';
-  }
-};
-
-const getConfidenceColor = (confidence: number) => {
-  if (confidence >= 85) return 'text-primary-600 bg-primary-50';
-  if (confidence >= 70) return 'text-alert-600 bg-alert-50';
-  return 'text-red-600 bg-red-50';
-};
 
 export default function DashboardPage() {
+  const [records, setRecords] = useState<DetectionRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const sb = createClient();
+        const { data } = await sb.from("detection_history").select("*")
+          .order("created_at",{ascending:false}).limit(100);
+        setRecords(data?.length ? data as DetectionRecord[] : MOCK);
+      } catch { setRecords(MOCK); }
+      setLoading(false);
+    })();
+  }, []);
+
+  const counts: Record<string,number> = {};
+  let totalConf = 0;
+  records.forEach(r => { counts[r.disease]=(counts[r.disease]??0)+1; totalConf+=r.confidence; });
+  const avgConf  = records.length ? totalConf/records.length : 0;
+  const lowCount = records.filter(r=>r.confidence<0.7).length;
+  const weekAgo  = Date.now()-7*86400000;
+  const thisWeek = records.filter(r=>new Date(r.created_at).getTime()>weekAgo).length;
+  const maxCount = Math.max(...Object.values(counts),1);
+
+  const DISEASE_ORDER: DiseaseClass[] = ["Healthy","Leaf Rust","Stripe Rust","Stem Rust","Septoria","Fusarium"];
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-2">Overview of wheat disease analysis and research metrics</p>
-      </div>
+    <Page
+      title="Dashboard"
+      subtitle="Detection activity overview"
+      actions={
+        <Link href="/analysis" className="btn-primary tap">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+            <line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/>
+          </svg>
+          New analysis
+        </Link>
+      }
+    >
+      <div style={{ display:"flex", flexDirection:"column", gap:16, maxWidth:1100 }}>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statsData.map((stat, index) => (
-          <div key={index} className="bg-white rounded-xl p-6 border border-gray-200">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                <p className="text-2xl font-bold text-gray-900 mt-2">{stat.value}</p>
-                <div className="flex items-center gap-2 mt-2">
-                  <TrendingUp className="w-4 h-4 text-green-500" />
-                  <span className="text-sm text-green-600 font-medium">{stat.change}</span>
-                  <span className="text-xs text-gray-500">vs last month</span>
-                </div>
+        {/* ── Stats row ──────────────────────────────────── */}
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:12 }}>
+          {[
+            { label:"Total scans",    value: loading?"—":records.length,               sub:`${thisWeek} this week`,           warn:false },
+            { label:"Avg confidence", value: loading?"—":`${Math.round(avgConf*100)}%`, sub:"Across all images",             warn:false },
+            { label:"Low confidence", value: loading?"—":lowCount,                     sub:"Manual review needed",             warn:true  },
+            { label:"GPS tagged",     value: loading?"—":records.filter(r=>r.latitude).length, sub:"Location recorded",     warn:false },
+          ].map((s,i)=>(
+            <div key={i} className="card" style={{ padding:"16px 20px" }}>
+              <div style={{ fontSize:11, color:"#888", marginBottom:8, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                {s.label}
+                {s.warn && <span style={{ width:6,height:6,borderRadius:"50%",background:"var(--amber-warn)",display:"inline-block" }}/>}
               </div>
-              <div className={`p-3 rounded-lg border ${getStatColor(stat.color)}`}>
-                {stat.icon}
+              <div style={{ fontSize:26, fontWeight:600, color: s.warn?"var(--amber-warn)":"#111", lineHeight:1, marginBottom:4 }}>
+                {loading ? <div className="skeleton" style={{width:48,height:28}}/> : String(s.value)}
               </div>
+              <div style={{ fontSize:11, color:"#aaa" }}>{s.sub}</div>
             </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Disease Distribution Chart */}
-        <div className="lg:col-span-2 bg-white rounded-xl p-6 border border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Disease Distribution</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={diseaseData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${name} ${percent ? (percent * 100).toFixed(0) : '0'}%`}
-                outerRadius={100}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {diseaseData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip formatter={(value) => [`${value} samples`, 'Count']} />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
+          ))}
         </div>
 
-        {/* Recent Activity */}
-        <div className="bg-white rounded-xl p-6 border border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
-            <Eye className="w-5 h-5 text-gray-400" />
-          </div>
-          <div className="space-y-4">
-            {recentActivity.map((activity) => (
-              <div key={activity.id} className="flex items-start gap-3">
-                <div className="w-2 h-2 bg-primary-500 rounded-full mt-2" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">{activity.sample}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${getConfidenceColor(activity.confidence)}`}>
-                      {activity.result}
-                    </span>
-                    <span className="text-xs text-gray-500">{activity.confidence}%</span>
+        {/* ── Charts row ─────────────────────────────────── */}
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
+
+          {/* Disease distribution */}
+          <div className="card" style={{ padding:"18px 20px" }}>
+            <div style={{ fontSize:13, fontWeight:600, color:"#111", marginBottom:16, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+              Disease distribution
+              <span style={{ fontSize:11, color:"#aaa", fontWeight:400 }}>{records.length} scans total</span>
+            </div>
+            <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+              {loading ? (
+                [75,55,40,25,15,8].map((w,i)=>(
+                  <div key={i} style={{ display:"flex", alignItems:"center", gap:10 }}>
+                    <div className="skeleton" style={{ width:70, height:10 }}/>
+                    <div className="skeleton" style={{ width:`${w}%`, height:22, flex:"none", borderRadius:4 }}/>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                    <Calendar className="w-3 h-3" />
-                    {activity.time}
-                  </p>
-                </div>
-              </div>
-            ))}
+                ))
+              ) : (
+                DISEASE_ORDER.map(d => {
+                  const meta = DISEASE_META[d];
+                  const count = counts[d] ?? 0;
+                  const pct   = count/maxCount;
+                  return (
+                    <div key={d} style={{ display:"flex", alignItems:"center", gap:10 }}>
+                      <span style={{ width:72, fontSize:11, color:"#666", textAlign:"right", flexShrink:0 }}>
+                        {d.split(" ")[0]}
+                      </span>
+                      <div style={{ flex:1, height:24, background:"#f4f4f4", borderRadius:6, overflow:"hidden" }}>
+                        <div style={{
+                          height:"100%", borderRadius:6, minWidth: count>0?28:0,
+                          width:`${pct*100}%`, background:meta.color, opacity:.85,
+                          display:"flex", alignItems:"center", paddingLeft:8,
+                          transition:"width 800ms cubic-bezier(.4,0,.2,1)"
+                        }}>
+                          {count > 0 && (
+                            <span style={{ fontSize:11, fontWeight:600, color:"#fff" }}>{count}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+
+          {/* Recent activity */}
+          <div className="card" style={{ padding:"18px 20px" }}>
+            <div style={{ fontSize:13, fontWeight:600, color:"#111", marginBottom:16, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+              Recent activity
+              <Link href="/history" style={{ fontSize:11, color:"var(--green-mid)", textDecoration:"none", fontWeight:500 }}>
+                View all →
+              </Link>
+            </div>
+            <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+              {loading ? (
+                [...Array(5)].map((_,i)=>(
+                  <div key={i} className="skeleton" style={{ height:44, borderRadius:10, opacity:1-i*.15 }}/>
+                ))
+              ) : records.slice(0,6).map(rec => {
+                const meta = DISEASE_META[rec.disease];
+                const low  = rec.confidence<0.7;
+                return (
+                  <div key={rec.id} style={{
+                    display:"flex", alignItems:"center", gap:10, padding:"8px 10px",
+                    borderRadius:10, background:"#fafafa", transition:"background var(--transition)"
+                  }}
+                  onMouseEnter={e=>(e.currentTarget.style.background="#f2f8ed")}
+                  onMouseLeave={e=>(e.currentTarget.style.background="#fafafa")}>
+                    <div style={{ width:30, height:30, borderRadius:8, background:meta.bg,
+                                  display:"flex", alignItems:"center", justifyContent:"center",
+                                  fontSize:14, color:meta.color, flexShrink:0 }}>
+                      {meta.icon}
+                    </div>
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <div style={{ fontSize:12, fontWeight:600, color:"#111", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
+                        {rec.disease}
+                      </div>
+                      <div style={{ fontSize:10, color:"#aaa" }}>{fmtRelative(rec.created_at)}</div>
+                    </div>
+                    <div style={{ textAlign:"right", flexShrink:0 }}>
+                      <div style={{ fontSize:12, fontWeight:700, color: low?"var(--amber-warn)":meta.color }}>
+                        {fmtConf(rec.confidence)}
+                      </div>
+                      {low && <div style={{ fontSize:9, color:"var(--amber-warn)", fontWeight:600 }}>⚠ review</div>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* ── CTA ────────────────────────────────────────── */}
+        <div className="card" style={{ padding:"20px 24px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+          <div>
+            <div style={{ fontSize:14, fontWeight:600, color:"#111", marginBottom:4 }}>Start a new analysis</div>
+            <div style={{ fontSize:12, color:"#888" }}>Upload up to 10 wheat leaf images for batch AI diagnosis</div>
+          </div>
+          <div style={{ display:"flex", gap:8 }}>
+            <Link href="/analysis" className="btn-primary tap">Analyze leaves →</Link>
+            <Link href="/history"  className="btn-ghost tap">View history</Link>
           </div>
         </div>
       </div>
-
-      {/* Quick Actions */}
-      <div className="bg-white rounded-xl p-6 border border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="flex items-center gap-3 p-4 bg-primary-50 hover:bg-primary-100 rounded-lg transition-colors border border-primary-200">
-            <div className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center">
-              <Activity className="w-5 h-5 text-white" />
-            </div>
-            <div className="text-left">
-              <p className="font-medium text-gray-900">New Analysis</p>
-              <p className="text-sm text-gray-600">Start analyzing wheat samples</p>
-            </div>
-          </button>
-          
-          <button className="flex items-center gap-3 p-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200">
-            <div className="w-10 h-10 bg-gray-500 rounded-lg flex items-center justify-center">
-              <History className="w-5 h-5 text-white" />
-            </div>
-            <div className="text-left">
-              <p className="font-medium text-gray-900">View History</p>
-              <p className="text-sm text-gray-600">Browse past analyses</p>
-            </div>
-          </button>
-          
-          <button className="flex items-center gap-3 p-4 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200">
-            <div className="w-10 h-10 bg-gray-500 rounded-lg flex items-center justify-center">
-              <FileText className="w-5 h-5 text-white" />
-            </div>
-            <div className="text-left">
-              <p className="font-medium text-gray-900">Generate Report</p>
-              <p className="text-sm text-gray-600">Export analysis data</p>
-            </div>
-          </button>
-        </div>
-      </div>
-    </div>
+    </Page>
   );
 }

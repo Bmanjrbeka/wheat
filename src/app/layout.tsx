@@ -1,34 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { AppLayout } from "@/components/layout/AppLayout";
+import { AppShell } from "@/components/AppShell";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Wheat-Guard - Research & Diagnostic Tool",
-  description:
-    "Professional wheat disease research and diagnostic tool for agricultural research. " +
-    "Analyze, understand, and record wheat disease patterns with AI-powered insights.",
-  keywords: ["wheat", "disease", "research", "diagnostic", "agriculture", "AI", "wheat-guard"],
+  title: "WheatGuard — Disease Diagnostics",
+  description: "AI-powered wheat disease detection for Ethiopian farmers and researchers.",
 };
-
 export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 1,
-  themeColor: "#4CAF50",
+  width: "device-width", initialScale: 1, themeColor: "#2d6a10",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning={true}>
-      <body 
-        className="min-h-screen antialiased"
-        suppressHydrationWarning={true}
-      >
-        <AppLayout>{children}</AppLayout>
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );
