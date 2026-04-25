@@ -1,6 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useState, createContext, useContext } from "react";
 import { Sidebar } from "./Sidebar";
+
+interface ShellCtx { collapsed: boolean; setCollapsed: (v: boolean) => void; }
+export const AppShellContext = createContext<ShellCtx>({ collapsed: false, setCollapsed: () => {} });
+export const useShell = () => useContext(AppShellContext);
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -22,8 +26,3 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     </>
   );
 }
-
-import { createContext, useContext } from "react";
-interface ShellCtx { collapsed: boolean; setCollapsed: (v: boolean) => void; }
-export const AppShellContext = createContext<ShellCtx>({ collapsed: false, setCollapsed: () => {} });
-export const useShell = () => useContext(AppShellContext);
