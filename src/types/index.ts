@@ -15,6 +15,7 @@ export interface Prediction {
   image_url?: string;         // Optional image URL for storage
   prevention?: string;        // Prevention recommendations
   top3?: Array<{disease: DiseaseClass, confidence: number}>; // Top 3 predictions
+  record_id?: string;         // Database record ID for tracking
 }
 
 // ── Detection history (Supabase row) ─────────────────────────
